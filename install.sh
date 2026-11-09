@@ -22,6 +22,7 @@ else
 fi
 
 # Claude Code
+link "$REPO/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 link "$REPO/claude/settings.json"  "$HOME/.claude/settings.json"
 link "$REPO/claude/statusline.sh"  "$HOME/.claude/statusline.sh"
 
