@@ -25,6 +25,7 @@ fi
 link "$REPO/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 link "$REPO/claude/settings.json"  "$HOME/.claude/settings.json"
 link "$REPO/claude/statusline.sh"  "$HOME/.claude/statusline.sh"
+link "$REPO/claude/hooks"         "$HOME/.claude/hooks"
 for skill in "$REPO"/claude/skills/*/; do
   link "${skill%/}" "$HOME/.claude/skills/$(basename "$skill")"
 done

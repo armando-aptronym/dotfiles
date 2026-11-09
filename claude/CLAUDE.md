@@ -13,3 +13,14 @@ Never add Claude attribution to anything we write together. This covers commit m
 # Responses that need my input
 
 When a response contains anything I am expected to answer (questions, options, proposals, decisions, items to confirm), use numbered lists, so I can reply by number. Do not use bullets for those items. Start a separate list at 1 for each section, and keep each item self-contained.
+
+# Working rules
+
+1. Make small commits. Keep generator output in its own commit, separate from hand edits, so each diff is clean.
+2. Never guess CLI flags or generator options. Check `--help` once per command in a session, and trim the output to the part needed.
+
+# Obsidian (AIGM vault)
+
+- The vault is at `~/Developer/AIGM`. Technical notes live under `03 - Areas/Technical/<topic>/`.
+- A topic folder has a folder note named after it, inside the folder, containing only `%% Waypoint %%`. The Waypoint plugin fills in the links.
+- Leaf pages may carry a simple `tags:` frontmatter, for example `nx`.

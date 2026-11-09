@@ -19,9 +19,3 @@ Notion data sources:
 3. **Check progress on the project.** Fetch the task's project page and query the Tasks data source for every task in that project (`Project` is a JSON array of page URLs, so match with `LIKE`). Summarize which tasks are done and which remain, the hours estimated and logged, the due dates, and which tasks come immediately before and after this one.
 4. **Ask only what is still open.** Decide from the ticket and the project which choices are unsettled. Typically: where the work lives, the working mode (the user runs commands and Claude explains, or Claude runs them), tooling, git remote and its visibility, and naming. Do not ask about anything the ticket or project already settles. Ask everything in one message as a numbered list, each item with a recommended default.
 5. **State the plan and wait.** Restate the goal and acceptance criteria in a few lines, with the session time and the project context. Say when ready, and do not start until the user confirms.
-
-## Working rules for the session
-
-1. **Commits.** Make small commits. Keep generator output in its own commit, separate from hand edits, so each diff is clean. Never add attribution lines.
-2. **Flags.** Never guess CLI flags. Check `--help` once per generator or command in a session, and trim the output to the part you need.
-3. **Notes.** Documentation is written timeless and factual, as in `finish-task`.

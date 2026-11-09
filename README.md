@@ -5,7 +5,7 @@ Personal setup for macOS: VS Code, iTerm2 and Claude Code.
 ```
 vscode/   settings.json, keybindings.json, extensions.txt
 iterm2/   com.googlecode.iterm2.plist
-claude/   CLAUDE.md, settings.json, statusline.sh, skills/
+claude/   CLAUDE.md, settings.json, statusline.sh, hooks/, skills/
 install.sh
 ```
 
@@ -22,7 +22,9 @@ The script symlinks the VS Code and Claude Code files (backing up existing ones 
 Settings → General → Settings → tick "Load settings from a custom folder or URL" and choose `iterm2/`. Set "Save changes" to automatically if iTerm2 should write edits back to the repo.
 
 ### Claude Code
-Only portable config lives here: `CLAUDE.md` (global preferences), `settings.json`, the status line script (needs `jq`) and the `start-task` and `finish-task` skills. Conversation history, credentials and plugin caches in `~/.claude` are intentionally not tracked.
+Only portable config lives here: `CLAUDE.md` (global preferences), `settings.json`, the status line script (needs `jq`), a `git push` pre-check hook (`hooks/pre-push-verify.sh`) and the `start-task` and `finish-task` skills.
+
+The hook runs the checks CI runs (`npm ci --dry-run`, the Nx format check, and `lint test build typecheck`) before a `git push` that Claude Code runs in an npm project, and blocks the push if one fails. Conversation history, credentials and plugin caches in `~/.claude` are intentionally not tracked.
 
 Plugin marketplaces are added from inside Claude Code, e.g. `/plugin marketplace add anthropics/claude-plugins-official`.
 
