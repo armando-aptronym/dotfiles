@@ -1,21 +1,64 @@
 ---
 name: start-task
-description: Start work on a Notion task by ticket ID (for example AIGM-33). Pulls the task, its sessions and the project's progress, asks only the questions the ticket leaves open, and waits for a go-ahead. Use when the user says start, begin or get started on a task, or gives a ticket ID to work on.
+description: Start work on a Notion task by ticket ID (for example AIGM-33). A sub-agent gathers the task, its project and the project's progress, then the main session asks only the questions the ticket leaves open, presents a fixed summary, and waits for a go-ahead. Use when the user says start, begin or get started on a task, or gives a ticket ID to work on.
 ---
 
 # Start a task
 
 Start work on one task from the Notion Tasks database. Change nothing until the user says to proceed.
 
-Notion data sources:
-- Tasks: `collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd` (`Ticket ID` is an integer, so AIGM-33 is `33`)
-- Sessions: `collection://3e62b5c8-41e7-803b-8dac-000b86b4da8a`
-- Projects: `collection://3e62b5c8-41e7-807b-9a90-000be3ac55ee`
-
 ## Steps
 
-1. **Pull the ticket.** Find the task by ticket ID with a Notion search or a query on the Tasks data source, then fetch the page. Extract the goal and background, acceptance criteria, plan, resources, estimate, priority, type and due date.
-2. **Pull its sessions.** Fetch each linked session page. Note the planned duration, the booked time slot, the status, and how far away the next session is.
-3. **Check progress on the project.** Fetch the task's project page and query the Tasks data source for every task in that project (`Project` is a JSON array of page URLs, so match with `LIKE`). Summarize which tasks are done and which remain, the hours estimated and logged, the due dates, and which tasks come immediately before and after this one.
-4. **Ask only what is still open.** Decide from the ticket and the project which choices are unsettled. Typically: where the work lives, the working mode (the user runs commands and Claude explains, or Claude runs them), tooling, git remote and its visibility, and naming. Do not ask about anything the ticket or project already settles. Ask everything in one message as a numbered list, each item with a recommended default.
-5. **State the plan and wait.** Restate the goal and acceptance criteria in a few lines, with the session time and the project context. Say when ready, and do not start until the user confirms.
+1. **Gather with a sub-agent.** Do not gather in the main session. Spawn one agent (Agent tool, `subagent_type: "general-purpose"`, `model: "haiku"`) with the prompt below, replacing `<N>` with the number after the dash in the ticket ID (AIGM-33 is `33`). It reads Notion only and returns a fixed structure. If a required field is missing from its result, fetch just that item yourself.
+2. **Ask only what is still open.** From the summary, decide which choices the ticket and the project leave unsettled. Typically: where the work lives, the working mode (the user runs commands and Claude explains, or Claude runs them), tooling, git remote and its visibility, and naming. Do not ask about anything already settled. Each question gets a recommended default and an alternative.
+3. **Present the summary in the output format below, then wait.** Do not start until the user answers or says "defaults".
+
+## Sub-agent prompt
+
+```
+Gather facts about Notion task AIGM-<N> and return them in the exact structure at the end. Read only: change nothing in Notion. Be efficient: use the fewest calls you can.
+
+1. Load tools with one ToolSearch call: select:mcp__claude_ai_Notion__notion-fetch,mcp__claude_ai_Notion__notion-query-data-sources
+2. Query the Tasks data source (collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd) for every task in the same project as ticket <N>. Columns: url, "Ticket ID" (integer), "Task Name", "Status" (Unplanned, To Do, Blocked, In Progress, Done), "Priority" (High, Medium, Low), "Estimate (h)", "date:Due Date:start", "Type" (JSON array), "Area", "Project" (JSON array of page URLs). Query:
+   SELECT "Ticket ID", "Task Name", "Status", "Priority", "Estimate (h)", "date:Due Date:start" AS due, "Type", "Area", "Project", url FROM "collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd" WHERE "Project" = (SELECT "Project" FROM "collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd" WHERE "Ticket ID" = ?) ORDER BY due
+   with params [<N>]. Call the query tool with one top-level argument, `data`: {"data": {"mode": "sql", "data_source_urls": [...], "query": "...", "params": [...]}}. If the task has no project (zero rows), query only the ticket row. Do not fetch the data source schema unless a query errors.
+3. In parallel with 4, query the Projects data source (collection://3e62b5c8-41e7-807b-9a90-000be3ac55ee). Columns: url, "Project Name", "Status", "Priority", "date:Start Date:start", "date:End Date:start". Match url to the project URL from step 2.
+4. Fetch the ticket's own page (its url from step 2) for its body.
+
+Return only this, with no commentary:
+- Ticket: id, name, status, priority, estimate (h), due date, type, area
+- Background: two sentences at most
+- Acceptance criteria: verbatim list
+- Plan and resources: verbatim lists from the page
+- Project: name, status, priority, start and end dates
+- Project tasks: a table of id, name, status, estimate (h), due date, ordered by due date, with the ticket's own row marked
+```
+
+## Output format
+
+Use this structure every time, so runs read the same.
+
+```
+## AIGM-<N>: <task name>
+
+**Ticket:** <type>, <area> area, <priority> priority, due <date>, estimate <h> h, status <status>. <One sentence of background.>
+
+**Acceptance criteria**
+- <criterion, verbatim>
+
+**Project: <name>** (<start> to <end>, <priority> priority). <X of Y tasks done, Z h estimated.>
+
+| ID | Task | Est. | Due |
+| --- | --- | --- | --- |
+| <N> | <name> (this one) | <h> | <MM-DD> |
+| ... | ... | ... | ... |
+
+<One sentence on what comes before and after this task.>
+
+**Open questions**
+
+1. <question>? Recommended: <default>. Alternative: <option>.
+2. ...
+
+**Plan:** <One or two sentences on how the work will go.> Reply with answers by number, or say "defaults". Nothing changes until you confirm.
+```
