@@ -9,7 +9,7 @@ cmd=$(jq -r '.tool_input.command // empty' <<<"$input")
 cwd=$(jq -r '.cwd // empty' <<<"$input")
 
 # Only act on git push.
-push_re='(^|[;&|(])[[:space:]]*git([[:space:]]+-C[[:space:]]+[^[:space:]]+)?[[:space:]]+push([[:space:]]|$)'
+push_re='(^|[;&|(])[[:space:]]*git(([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)|([[:space:]]+--[a-z-]+(=[^[:space:]]+)?))*[[:space:]]+push([[:space:]]|$)'
 [[ $cmd =~ $push_re ]] || exit 0
 
 # Work out which directory the push runs in: a git -C path, a leading cd, else the session cwd.
