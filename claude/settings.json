@@ -1,0 +1,11 @@
+{
+  "theme": "dark",
+  "model": "sonnet",
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+  "permissions": {
+    "defaultMode": "auto"
+  }
+}

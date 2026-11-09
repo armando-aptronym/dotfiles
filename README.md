@@ -1,0 +1,31 @@
+# dotfiles
+
+Personal setup for macOS: VS Code, iTerm2 and Claude Code.
+
+```
+vscode/   settings.json, keybindings.json, extensions.txt
+iterm2/   com.googlecode.iterm2.plist
+claude/   settings.json, statusline.sh
+install.sh
+```
+
+## Install
+
+```sh
+git clone https://github.com/armando-aptronym/dotfiles ~/Developer/dotfiles
+~/Developer/dotfiles/install.sh
+```
+
+The script symlinks the VS Code and Claude Code files (backing up existing ones to `*.bak`) and installs the VS Code extensions listed in `vscode/extensions.txt`.
+
+### iTerm2
+Settings → General → Settings → tick "Load settings from a custom folder or URL" and choose `iterm2/`. Set "Save changes" to automatically if iTerm2 should write edits back to the repo.
+
+### Claude Code
+Only portable config lives here: `settings.json` and the status line script (needs `jq`). Conversation history, credentials and plugin caches in `~/.claude` are intentionally not tracked.
+
+Plugin marketplaces are added from inside Claude Code, e.g. `/plugin marketplace add anthropics/claude-plugins-official`.
+
+## Notes
+- VS Code's `apc.*` settings need the Apc Customize UI++ extension, which patches VS Code's own files and may need re-enabling after updates.
+- Fonts used: PT Mono (VS Code), MesloLGS NF (iTerm2).

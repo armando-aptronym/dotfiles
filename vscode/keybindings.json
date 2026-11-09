@@ -1,0 +1,234 @@
+// Place your key bindings in this file to override the defaults
+[
+    // ---- Existing custom bindings ----
+    {
+        "key": "alt+space",
+        "command": "workbench.action.terminal.toggleTerminal",
+        "when": "terminal.active"
+    },
+    {
+        "key": "ctrl+`",
+        "command": "-workbench.action.terminal.toggleTerminal",
+        "when": "terminal.active"
+    },
+
+    // ---- Sidebar toggles on B removed (B is now Go to Declaration / Implementation) ----
+    {
+        "key": "cmd+b",
+        "command": "-workbench.action.toggleSidebarVisibility"
+    },
+    {
+        "key": "alt+cmd+b",
+        "command": "-workbench.action.toggleAuxiliaryBar"
+    },
+
+    // ---- Files: save / reveal ----
+    {
+        "key": "cmd+s",
+        "command": "-workbench.action.files.save"
+    },
+    {
+        "key": "cmd+s",
+        "command": "workbench.files.action.showActiveFileInExplorer"
+    },
+    {
+        "key": "shift+cmd+s",
+        "command": "-workbench.action.files.saveAs"
+    },
+    {
+        "key": "shift+cmd+s",
+        "command": "-workbench.action.files.saveLocalFile",
+        "when": "remoteFileDialogVisible"
+    },
+    {
+        "key": "shift+cmd+s",
+        "command": "workbench.action.files.saveAll"
+    },
+
+    // ---- IntelliJ: navigation and search ----
+    // Cmd+O: Go to File (IntelliJ puts this on Cmd+Shift+O)
+    {
+        "key": "cmd+o",
+        "command": "-workbench.action.files.openFileFolder"
+    },
+    {
+        "key": "cmd+p",
+        "command": "-workbench.action.quickOpen"
+    },
+    {
+        "key": "cmd+o",
+        "command": "workbench.action.quickOpen"
+    },
+    // Cmd+Shift+O: Go to Class
+    {
+        "key": "cmd+t",
+        "command": "-workbench.action.showAllSymbols"
+    },
+    {
+        "key": "shift+cmd+o",
+        "command": "-workbench.action.gotoSymbol"
+    },
+    {
+        "key": "shift+cmd+o",
+        "command": "workbench.action.showAllSymbols"
+    },
+    // Cmd+Alt+O: Go to Symbol
+    {
+        "key": "alt+cmd+o",
+        "command": "workbench.action.showAllSymbols"
+    },
+    // Cmd+E: Recent Files
+    {
+        "key": "cmd+e",
+        "command": "workbench.action.showAllEditorsByMostRecentlyUsed"
+    },
+    // Cmd+F12: File Structure
+    {
+        "key": "cmd+f12",
+        "command": "workbench.action.gotoSymbol"
+    },
+    // Cmd+L: Go to Line
+    {
+        "key": "ctrl+g",
+        "command": "-workbench.action.gotoLine"
+    },
+    {
+        "key": "cmd+l",
+        "command": "workbench.action.gotoLine"
+    },
+    // Cmd+B / Cmd+Alt+B: Go to Declaration / Implementation
+    {
+        "key": "cmd+b",
+        "command": "editor.action.revealDefinition",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "alt+cmd+b",
+        "command": "editor.action.goToImplementation",
+        "when": "editorTextFocus"
+    },
+    // Alt+F7: Find Usages
+    {
+        "key": "alt+f7",
+        "command": "references.findReferences",
+        "when": "editorTextFocus"
+    },
+    // Cmd+[ / Cmd+]: Back / Forward
+    {
+        "key": "cmd+[",
+        "command": "workbench.action.navigateBack"
+    },
+    {
+        "key": "cmd+]",
+        "command": "workbench.action.navigateForward"
+    },
+    // Cmd+1: Project tool window
+    {
+        "key": "cmd+1",
+        "command": "workbench.view.explorer"
+    },
+    // Cmd+R / Cmd+Shift+R: Replace in file / in path
+    {
+        "key": "cmd+r",
+        "command": "editor.action.startFindReplace",
+        "when": "editorFocus"
+    },
+    {
+        "key": "shift+cmd+r",
+        "command": "workbench.action.replaceInFiles"
+    },
+    // F2 / Shift+F2: Next / previous error
+    {
+        "key": "f2",
+        "command": "editor.action.marker.next",
+        "when": "editorFocus"
+    },
+    {
+        "key": "shift+f2",
+        "command": "editor.action.marker.prev",
+        "when": "editorFocus"
+    },
+
+    // ---- IntelliJ: editing ----
+    // Cmd+D: Duplicate line
+    {
+        "key": "cmd+d",
+        "command": "editor.action.copyLinesDownAction",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    // Cmd+Backspace: Delete line
+    {
+        "key": "cmd+backspace",
+        "command": "editor.action.deleteLines",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    // Ctrl+G / Ctrl+Cmd+G: Add next occurrence / select all occurrences
+    {
+        "key": "ctrl+g",
+        "command": "editor.action.addSelectionToNextFindMatch",
+        "when": "editorFocus"
+    },
+    {
+        "key": "ctrl+cmd+g",
+        "command": "editor.action.selectHighlights",
+        "when": "editorFocus"
+    },
+    // Alt+Up / Alt+Down: Extend / shrink selection
+    {
+        "key": "alt+up",
+        "command": "editor.action.smartSelect.grow",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "alt+down",
+        "command": "editor.action.smartSelect.shrink",
+        "when": "editorTextFocus"
+    },
+    // Shift+Alt+Up / Down: Move line
+    {
+        "key": "shift+alt+up",
+        "command": "editor.action.moveLinesUpAction",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    {
+        "key": "shift+alt+down",
+        "command": "editor.action.moveLinesDownAction",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    // Cmd+Alt+L: Reformat code
+    {
+        "key": "alt+cmd+l",
+        "command": "editor.action.formatDocument",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    // Ctrl+Alt+O: Optimize imports
+    {
+        "key": "ctrl+alt+o",
+        "command": "editor.action.organizeImports",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    // Shift+F6: Rename
+    {
+        "key": "shift+f6",
+        "command": "editor.action.rename",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    // Alt+Enter: Show intention actions / quick fix
+    {
+        "key": "alt+enter",
+        "command": "editor.action.quickFix",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    // Ctrl+T: Refactor this
+    {
+        "key": "ctrl+t",
+        "command": "editor.action.refactor",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    // Cmd+P: Parameter info
+    {
+        "key": "cmd+p",
+        "command": "editor.action.triggerParameterHints",
+        "when": "editorTextFocus"
+    }
+]
