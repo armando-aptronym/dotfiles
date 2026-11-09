@@ -25,6 +25,9 @@ fi
 link "$REPO/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 link "$REPO/claude/settings.json"  "$HOME/.claude/settings.json"
 link "$REPO/claude/statusline.sh"  "$HOME/.claude/statusline.sh"
+for skill in "$REPO"/claude/skills/*/; do
+  link "${skill%/}" "$HOME/.claude/skills/$(basename "$skill")"
+done
 
 # iTerm2: preferences are loaded from this folder (see README)
 echo "iTerm2: Settings > General > Settings > 'Load settings from a custom folder or URL' -> $REPO/iterm2"
