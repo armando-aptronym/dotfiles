@@ -1,6 +1,6 @@
 ---
 name: finish-task
-description: Close out a Notion task. Audits the acceptance criteria against what actually happened, quizzes the user where a criterion is "can explain", updates the Obsidian notes and the Notion task and session, and proposes follow-up tasks for approval. Use when the user says a task or session is complete, or asks to wrap up or close a ticket.
+description: Close out a Notion task. Audits the acceptance criteria against what actually happened, quizzes the user where a criterion is "can explain", updates the Obsidian notes and the Notion task and session, and proposes follow-up tasks for approval. Sets every session under the task to Done. Use when the user says a task or session is complete, or asks to wrap up or close a ticket.
 ---
 
 # Finish a task
@@ -17,7 +17,7 @@ Notion data sources:
 1. **Audit the acceptance criteria.** Check each criterion against the real state of the work: the repo, the commands that ran, CI. Report each as met or not met, with the evidence. Do not tick anything that has not been verified.
 2. **Quiz where a criterion says "can explain".** Ask three or four short questions in the user's own words, grade the answers honestly, and correct gaps. Count the criterion as met only if the understanding is there.
 3. **Update the documentation.** Notes live in the Obsidian vault, and the conventions in `CLAUDE.md` apply (folder note, tags, timeless factual style). Check the existing pages against what was actually done, and add or fix pages where they are out of date.
-4. **Update Notion.** Tick the acceptance-criteria and plan boxes that are verified. Fill in anything the ticket asks to record, such as Resources. Set the session or sessions to Done, then the task to Done. Do not change logged or planned hours.
+4. **Update Notion.** Tick the acceptance-criteria and plan boxes that are verified. Fill in anything the ticket asks to record, such as Resources. Then set every session linked to the task to Done: query the Sessions data source for rows whose `Task` relation contains the task's page URL, and set `Status` to Done on each row that is still To Do, without asking per session. Re-query afterwards and confirm that none of the task's sessions is still To Do. Set the task itself to Done last. Do not edit logged or planned hours directly; `Logged Time (h)` is a formula that counts a session only once it is Done, so marking sessions Done is what logs the time. Report the sessions that were closed, by name.
 5. **Audit for follow-ups, then ask.** List what is left over: unmet criteria, optional extensions, gaps in the docs. Present them as a numbered list. For each give a proposed task name, priority, estimate, project and due date, plus proposed sessions with their types and durations. Wait for explicit approval of each item. Create only the approved tasks and sessions, and leave unapproved ones uncreated.
 
 Choosing the next task is out of scope. The user does that separately.
