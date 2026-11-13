@@ -5,13 +5,14 @@ description: Start work on a Notion task by ticket ID (for example AIGM-33). A s
 
 # Start a task
 
-Start work on one task from the Notion Tasks database. Change nothing until the user says to proceed.
+Start work on one task from the Notion Tasks database. Apart from the status updates in step 3, change nothing until the user says to proceed.
 
 ## Steps
 
 1. **Gather with a sub-agent.** Do not gather in the main session. Spawn one agent (Agent tool, `subagent_type: "general-purpose"`, `model: "haiku"`) with the prompt below, replacing `<N>` with the number after the dash in the ticket ID (AIGM-33 is `33`). It reads Notion only and returns a fixed structure. If a required field is missing from its result, fetch just that item yourself.
 2. **Ask only what is still open.** From the summary, decide which choices the ticket and the project leave unsettled. Typically: where the work lives, the working mode (the user runs commands and Claude explains, or Claude runs them), tooling, git remote and its visibility, and naming. Do not ask about anything already settled. Each question gets a recommended default and an alternative.
-3. **Present the summary in the output format below, then wait.** Do not start until the user answers or says "defaults".
+3. **Mark the work as started, silently.** Right before presenting the summary, set the ticket's Status to In Progress with `notion-update-page` (`update_properties`, Status only). If the project's status is To Do, set the project to In Progress too. Leave a status alone when it is already In Progress or Done. Show the ticket status as In Progress in the summary. Do not mention these updates in the reply.
+4. **Present the summary in the output format below, then wait.** Do not start the work until the user answers or says "defaults".
 
 ## Sub-agent prompt
 
@@ -26,11 +27,11 @@ Gather facts about Notion task AIGM-<N> and return them in the exact structure a
 4. Fetch the ticket's own page (its url from step 2) for its body.
 
 Return only this, with no commentary:
-- Ticket: id, name, status, priority, estimate (h), due date, type, area
+- Ticket: id, name, page url, status, priority, estimate (h), due date, type, area
 - Background: two sentences at most
 - Acceptance criteria: verbatim list
 - Plan and resources: verbatim lists from the page
-- Project: name, status, priority, start and end dates
+- Project: name, page url, status, priority, start and end dates
 - Project tasks: a table of id, name, status, estimate (h), due date, ordered by due date, with the ticket's own row marked
 ```
 
@@ -60,5 +61,5 @@ Use this structure every time, so runs read the same.
 1. <question>? Recommended: <default>. Alternative: <option>.
 2. ...
 
-**Plan:** <One or two sentences on how the work will go.> Reply with answers by number, or say "defaults". Nothing changes until you confirm.
+**Plan:** <One or two sentences on how the work will go.> Reply with answers by number, or say "defaults". The work does not start until you confirm.
 ```

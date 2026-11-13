@@ -18,6 +18,7 @@ Token fields come from each API call's usage record:
 Dollar cost is not computed, because rates change.
 """
 import argparse, glob, json, os, sys
+from datetime import datetime
 from collections import Counter, OrderedDict
 
 PROJECTS = os.path.expanduser('~/.claude/projects')
@@ -98,7 +99,7 @@ def tally(rows, start_text):
         if r.get('type') == 'assistant':
             mid = msg.get('id') or f'row{i}'
             u = msg.get('usage', {}) or {}
-            cur = calls.setdefault(mid, {'u': Counter(), 'tools': [], 'model': msg.get('model')})
+            cur = calls.setdefault(mid, {'u': Counter(), 'tools': [], 'model': msg.get('model'), 'ts': r.get('timestamp')})
             for k in ('input_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens', 'output_tokens'):
                 cur['u'][k] = max(cur['u'][k], u.get(k, 0) or 0)
             for b in content or []:
@@ -167,13 +168,31 @@ def main():
     print(f'transcript: {path}')
     print(f'models: {", ".join(models)}   api calls: {len(calls)}')
     print()
-    print(f'{"#":>2} {"input":>7} {"cache_w":>8} {"cache_r":>8} {"output":>7}  tools')
+    def secs(a, b):
+        try:
+            f = lambda x: datetime.fromisoformat(x.replace('Z', '+00:00'))
+            return int((f(b) - f(a)).total_seconds())
+        except Exception:
+            return None
+
+    print(f'{"#":>2} {"input":>7} {"cache_w":>8} {"cache_r":>8} {"output":>7} {"gap":>6}  tools')
+    prev = None
+    rewrites = 0
     for n, c in enumerate(calls.values()):
         u = c['u']
         tools = ', '.join(t.replace('mcp__claude_ai_', '') for t in c['tools'])
-        print(f'{n:>2} {u["input_tokens"]:>7} {u["cache_creation_input_tokens"]:>8} {u["cache_read_input_tokens"]:>8} {u["output_tokens"]:>7}  {tools}')
+        gap = secs(prev['ts'], c['ts']) if prev and prev.get('ts') and c.get('ts') else None
+        gap_s = f'{gap // 60}:{gap % 60:02d}' if gap is not None and gap >= 0 else ''
+        flag = ''
+        if prev and u['cache_creation_input_tokens'] > 0.5 * ctx(prev['u']) and u['cache_read_input_tokens'] < 0.5 * prev['u']['cache_read_input_tokens']:
+            flag = '  <-- cache rewritten'
+            rewrites += 1
+        print(f'{n:>2} {u["input_tokens"]:>7} {u["cache_creation_input_tokens"]:>8} {u["cache_read_input_tokens"]:>8} {u["output_tokens"]:>7} {gap_s:>6}  {tools}{flag}')
+        prev = c
     print(f'{"":>2} {"-" * 7} {"-" * 8} {"-" * 8} {"-" * 7}')
     print(f'{"":>2} {summary["input"]:>7} {summary["cache_write"]:>8} {summary["cache_read"]:>8} {summary["output"]:>7}  total')
+    if rewrites:
+        print(f'{rewrites} call(s) re-wrote most of the context (cache miss). A long gap before it usually means the cache expired.')
     print()
     print(f'context at first call: {summary["context_at_first_call"]:,} tokens')
     print(f'context at last call:  {summary["context_at_last_call"]:,} tokens '
