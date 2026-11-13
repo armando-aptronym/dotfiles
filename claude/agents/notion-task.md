@@ -29,12 +29,21 @@ Read only. Collect facts about task AIGM-<N>.
 3. Fetch the ticket's own page (its url from step 1).
 
 Return only this:
-- Ticket: id, name, status, priority, estimate (h), due date, type, area
+- Ticket: id, name, page url, status, priority, estimate (h), due date, type, area
 - Background: two sentences at most
 - Acceptance criteria: verbatim list
 - Plan and resources: verbatim lists from the page
-- Project: name, status, priority, start and end dates
+- Project: name, page url, status, priority, start and end dates
 - Project tasks: a table of id, name, status, estimate (h), due date, ordered by due date, with the ticket's own row marked
+
+## START
+
+The message gives the ticket's page url and status, and the project's page url and status. Keep your loaded tools, and load `mcp__claude_ai_Notion__notion-update-page` with one ToolSearch call if you have not.
+
+1. Set the ticket's Status to In Progress with `update_properties`, Status only, unless it is already In Progress or Done.
+2. Set the project's Status to In Progress the same way, but only if its status is To Do.
+
+Return only `ok`, or the error if an update failed.
 
 ## READ <N>
 
