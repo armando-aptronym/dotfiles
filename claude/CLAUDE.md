@@ -24,3 +24,5 @@ When a response contains anything I am expected to answer (questions, options, p
 - The vault is at `~/Developer/AIGM`. Technical notes live under `03 - Areas/Technical/<topic>/`.
 - A topic folder has a folder note named after it, inside the folder, containing only `%% Waypoint %%`. The Waypoint plugin fills in the links.
 - Leaf pages may carry a simple `tags:` frontmatter, for example `nx`.
+- A topic folder may group its notes into category subfolders, for example `Nx/Core Features/`.
+- Note titles and headings use Title Case, for example `## How the Affected Set Is Calculated`. Minor words (`a`, `an`, `and`, `as`, `at`, `but`, `by`, `for`, `from`, `in`, `of`, `on`, `or`, `the`, `to`, `vs`, `versus`, `with`) stay lowercase unless first or last. Code identifiers and file names stay as written (`typeof in a Type Position`, `project.json`).

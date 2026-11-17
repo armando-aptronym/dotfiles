@@ -14,9 +14,9 @@ The query tool takes a single argument named `data`. Put `mode`, `data_source_ur
 
 ## Data sources and columns
 
-- Tasks, `collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd`: url, "Ticket ID" (integer), "Task Name", "Status" (Unplanned, To Do, Blocked, In Progress, Done), "Priority" (High, Medium, Low), "Estimate (h)", "date:Due Date:start", "Type" (JSON array), "Area", "Project" (JSON array of page URLs), "Sessions".
-- Sessions, `collection://3e62b5c8-41e7-803b-8dac-000b86b4da8a`: url, "Session Name", "Status" (To Do, Done), "Planned Duration (h)", "Type" (Deep Work, Admin, Learning, Planning), "Task" (JSON array of task page URLs), "date:Time:start", "date:Time:end", "date:Time:is_datetime".
-- Projects, `collection://3e62b5c8-41e7-807b-9a90-000be3ac55ee`: url, "Project Name", "Status", "Priority", "date:Start Date:start", "date:End Date:start".
+- Tasks, `collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd`: url, "Ticket ID" (integer), "Task Name", "Status" (Seeded, Ready to Refine, Needs Review, To Do, Blocked, In Progress, Done), "Priority" (High, Medium, Low), "Estimate (h)", "date:Due Date:start", "Type" (JSON array), "Area", "Project" (JSON array of page URLs), "Domain" (JSON array of page URLs), "Blocked By" (JSON array of page URLs), "Sessions".
+- Sessions, `collection://3e62b5c8-41e7-803b-8dac-000b86b4da8a`: url, "Session Name", "Status" (Proposed, To Do, Done), "Planned Duration (h)", "Type" (Deep Work, Admin, Learning, Planning), "Task" (JSON array of task page URLs), "date:Time:start", "date:Time:end", "date:Time:is_datetime".
+- Projects, `collection://3e62b5c8-41e7-807b-9a90-000be3ac55ee`: url, "Project Name", "Status" (Seeded, Ready to Refine, Needs Review, To Do, Blocked, In Progress, Done), "Priority", "date:Start Date:start", "date:End Date:start".
 
 The message starts with a mode.
 
