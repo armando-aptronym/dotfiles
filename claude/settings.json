@@ -1,6 +1,9 @@
 {
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "allow": [
+      "mcp__claude_ai_Notion__notion-update-page"
+    ]
   },
   "model": "sonnet",
   "hooks": {
