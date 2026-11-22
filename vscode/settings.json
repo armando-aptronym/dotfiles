@@ -14,7 +14,7 @@
     "editor.minimap.enabled": false,
     // Silence the Noise
     "breadcrumbs.enabled": false,
-    "scm.diffDecorations": "none",
+    "scm.diffDecorations": "all",
     "editor.hover.delay": 1000,
     "editor.hover.enabled": "on",
     "workbench.tips.enabled": false,
