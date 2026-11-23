@@ -1,6 +1,6 @@
 ---
 name: notion-task
-description: Mechanical Notion worker for the start-task and finish-task skills. Gathers a task's facts, reads a task with its sessions, ticks checkboxes and sets statuses, and creates approved tasks and sessions, exactly as instructed. Use only when a skill or the user delegates Notion work to it.
+description: Mechanical Notion worker for the start-task and finish-task skills. Gathers a task's facts, reads a task with its sessions, ticks checkboxes, sets statuses (task, sessions, optionally the project), and creates approved tasks and sessions, exactly as instructed. Use only when a skill or the user delegates Notion work to it.
 tools: ToolSearch, mcp__claude_ai_Notion__*
 disallowedTools: mcp__claude_ai_Notion__notion-delete-pages, mcp__claude_ai_Notion__notion-delete-databases, mcp__claude_ai_Notion__notion-delete-comment, mcp__claude_ai_Notion__notion-calendar-cancel-events
 model: haiku
@@ -53,10 +53,10 @@ Report the ticket's status as it is after step 3. Do not mention the updates. Re
 
 Read only. Keep your loaded tools, because a WRITE or CREATE message may follow.
 
-1. Query the Tasks data source: `SELECT url, [Task Name], [Status], [Project], [Sessions] FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Ticket ID] = ?` with params [N]. This is the only query in READ.
-2. Fetch the task page, and fetch each session url from the `Sessions` column in parallel for its name and status. Do not query the Sessions data source.
+1. Query the Tasks data source: `SELECT url, [Task Name], [Status], [Area], [Type], [Domain], [Project], [Sessions] FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Ticket ID] = ?` with params [N]. This is the only query in READ. If it fails on the allowance, use the Tasks fallback and add a `Degraded:` line.
+2. Fetch the task page, and fetch each session url from the `Sessions` column in parallel for its name and status. Do not query the Sessions data source. If the task has a project, fetch the project page for its Project ID, name and url.
 
-Return only: the task url, name and status; the acceptance criteria, plan items and resources, each verbatim; the sessions linked to the task, each with its url, name and status. Sessions that are in the trash are listed as `trashed` with their url, and are not counted as live.
+Return only: the task url, name, status, Area, Type, Domain (url) and project (Project ID, name, url); the acceptance criteria, plan items and resources, each verbatim; the sessions linked to the task, each with its url, name and status. Sessions that are in the trash are listed as `trashed` with their url, and are not counted as live.
 
 ## WRITE
 
@@ -66,15 +66,19 @@ The message lists the items to tick and any other edits. Do these in order.
 2. For each live (not trashed) session from your READ result that is still To Do, set Status to Done with `update_properties`. Do not ask per session.
 3. Fetch each of those session pages in parallel and confirm that none is still To Do. If one is, fix it and fetch it once more. Do not query the Sessions data source.
 4. Set the task's Status to Done last.
-5. Never edit hours.
+5. If the message includes `PROJECT DONE <project url>`, set that project's Status to Done after the task. Only the message can ask for this.
+6. Never edit hours. Leave sessions that are Proposed as they are.
 
-Return one short block: the boxes ticked, the sessions set to Done by name, the task's final status, and any warnings.
+After step 4, if the task has a project, query the Tasks data source once: `SELECT COUNT(*) AS open FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Project] LIKE ? AND [Status] != 'Done'` with the project url as `%<url>%`. If the query fails, use the Tasks fallback; if that fails too, answer `unknown`.
+
+Return one short block: the boxes ticked, the sessions set to Done by name, the task's final status, the Proposed sessions left as they are (by name), `Project complete: yes, no or unknown` (omit when the task has no project), and any warnings.
 
 ## CREATE
 
 The message lists approved tasks, with their page content, and approved sessions. Create only those.
 
-- Tasks go in the Tasks data source (parent `data_source_id` 3e62b5c8-41e7-80e7-9415-000bb0c582fd) with the exact property names "Task Name", "Status", "Priority", "Estimate (h)", "Type" (["📚 Learning"]), "Area", "Project" (an array of project page URLs), "date:Due Date:start" and "date:Due Date:is_datetime" (0).
-- Sessions go in the Sessions data source (parent `data_source_id` 4212b5c8-41e7-8108-8fa6-000b880c3885) with "Session Name", "Status" (To Do), "Planned Duration (h)", "Type" and "Task" (an array holding the task page URL).
+- Tasks go in the Tasks data source (parent `data_source_id` 3e62b5c8-41e7-80e7-9415-000bb0c582fd) with the exact property names "Task Name", "Status" (To Do), "Priority", "Estimate (h)", "Area", "Type" (an array, as the message gives it; omit when none), "Domain" (an array of domain page URLs; omit when none), "Project" (an array of project page URLs), "date:Due Date:start" and "date:Due Date:is_datetime" (0; omit when none).
+- Fetch each created task to read its Ticket ID.
+- Sessions go in the Sessions data source (parent `data_source_id` 4212b5c8-41e7-8108-8fa6-000b880c3885) with "Session Name" (`[TASK-<Ticket ID>] <description>`, the description from the message), "Status" (To Do), "Planned Duration (h)", "Type" and "Task" (an array holding the task page URL).
 
-Return only the url of each page you created.
+Return only the url of each page you created, with the task's TASK-<Ticket ID>.

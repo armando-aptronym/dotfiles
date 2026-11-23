@@ -9,11 +9,6 @@ Close out one task from the Notion Tasks database. Verify instead of assuming, a
 
 Do not load or call Notion tools in the main session. The `notion-task` agent does all the Notion reading, writing and creating, so the tool schemas stay out of the main context.
 
-Notion data sources:
-- Tasks: `collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd`
-- Sessions: `collection://4212b5c8-41e7-8108-8fa6-000b880c3885`
-- Projects: `collection://3e62b5c8-41e7-807b-9a90-000be3ac55ee`
-
 ## Steps
 
 1. **Audit the acceptance criteria.**
@@ -22,8 +17,8 @@ Notion data sources:
    3. Judge each criterion as met or not met, with the evidence. Do not tick anything that has not been verified.
 2. **Quiz where a criterion says "can explain".** Ask three or four short questions in the user's own words, grade the answers honestly, and correct gaps. Count the criterion as met only if the understanding is there.
 3. **Update the documentation.** Notes live in the Obsidian vault, and the conventions in `CLAUDE.md` apply (folder note, tags, timeless factual style). Check the existing pages against what was actually done, and add or fix pages where they are out of date. Write each page once, with a single Write, instead of Write followed by Edit.
-4. **Update Notion.** Continue the `notion-task` agent with a `WRITE` message, listing the verified criteria and plan items to tick verbatim, one per line, and any other edits, such as Resources, or `none`. The agent ticks the boxes, sets every session linked to the task to Done without asking per session, confirms by fetching each session page that none is still To Do, and sets the task to Done last. Do not edit logged or planned hours: `Logged Time (h)` is a formula that counts a session only once it is Done, so marking sessions Done is what logs the time. Report the sessions that were closed, by name. Do not fetch pages to verify the updates, because the agent's own check is the only one. If its report ends with a `Degraded:` line, pass that on to the user and go on.
-5. **Audit for follow-ups, then ask.** List what is left over: unmet criteria, optional extensions, gaps in the docs. Present them as a numbered list. For each give a proposed task name, priority, estimate, project and due date, plus proposed sessions with their types and durations. Wait for explicit approval of each item. Then continue the `notion-task` agent with a `CREATE` message listing only the approved tasks, with their page content, and approved sessions, and leave unapproved ones uncreated.
+4. **Update Notion.** Continue the `notion-task` agent with a `WRITE` message, listing the verified criteria and plan items to tick verbatim, one per line, and any other edits, such as Resources, or `none`. The agent ticks the boxes, sets every session linked to the task to Done without asking per session, confirms by fetching each session page that none is still To Do, and sets the task to Done last. Do not edit logged or planned hours: `Logged Time (h)` is a formula that counts a session only once it is Done, so marking sessions Done is what logs the time. Report the sessions that were closed, by name, and any Proposed sessions it left as they are (they were never approved; the user decides what to do with them). If the report says `Project complete: yes`, ask whether to set the project Done and, on a yes, continue the agent with `PROJECT DONE <project url>`. Do not fetch pages to verify the updates, because the agent's own check is the only one. If its report ends with a `Degraded:` line, pass that on to the user and go on.
+5. **Audit for follow-ups, then ask.** List what is left over: unmet criteria, optional extensions, gaps in the docs. Present them as a numbered list. For each give a proposed task name (Title Case), priority, estimate, Area, project and due date, plus proposed sessions with a short description, type and duration (multiples of 0.5 h, each under 2 h). Area, Type, Domain and project default to the finished task's, from the `READ` result; the user can correct them. Wait for explicit approval of each item. Then continue the `notion-task` agent with a `CREATE` message listing only the approved tasks (name, priority, estimate, Area, Type, Domain, project, due date, page content) and their approved sessions (description, type, hours), and leave unapproved ones uncreated. Approved tasks are created as To Do with To Do sessions; the agent names the sessions with the new ticket IDs.
 
 Choosing the next task is out of scope. The user does that separately.
 
