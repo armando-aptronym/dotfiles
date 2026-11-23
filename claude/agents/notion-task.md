@@ -31,7 +31,7 @@ The message starts with a mode.
 
 ## GATHER <N>
 
-Collect facts about task AIGM-<N>, then mark it as started. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` with your one ToolSearch call.
+Collect facts about task TASK-<N>, then mark it as started. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` with your one ToolSearch call.
 
 1. Query the Tasks data source for every task in the same project as ticket N: `SELECT [Ticket ID], [Task Name], [Status], [Priority], [Estimate (h)], [date:Due Date:start] AS due, [Type], [Area], [Project], url FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Project] = (SELECT [Project] FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Ticket ID] = ?) ORDER BY due` with params [N]. If the task has no project (zero rows), query only the ticket row.
 2. Fetch the project page (its URL from step 1) for its name, status, priority, start date and end date. Do not query the Projects data source.
