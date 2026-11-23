@@ -31,21 +31,22 @@ The message starts with a mode.
 
 ## GATHER <N>
 
-Collect facts about task TASK-<N>, then mark it as started. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` with your one ToolSearch call.
+Collect facts about task TASK-<N>, then mark it as started when it is approved. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` with your one ToolSearch call.
 
 1. Query the Tasks data source for every task in the same project as ticket N: `SELECT [Ticket ID], [Task Name], [Status], [Priority], [Estimate (h)], [date:Due Date:start] AS due, [Type], [Area], [Project], url FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Project] = (SELECT [Project] FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Ticket ID] = ?) ORDER BY due` with params [N]. If the task has no project (zero rows), query only the ticket row.
-2. Fetch the project page (its URL from step 1) for its name, status, priority, start date and end date. Do not query the Projects data source.
+2. Fetch the project page (its URL from step 1) for its Project ID, name, status, priority, start date and end date. Do not query the Projects data source.
 3. Once you have both statuses, do these in parallel:
    1. Fetch the ticket's own page (its url from step 1).
-   2. Set the ticket's Status to In Progress, unless it is already In Progress or Done, with `notion-update-page` and `{"page_id": "<ticket url>", "command": "update_properties", "properties": {"Status": "In Progress"}}`.
+   2. Set the ticket's Status to In Progress only if it is To Do, with `notion-update-page` and `{"page_id": "<ticket url>", "command": "update_properties", "properties": {"Status": "In Progress"}}`. Any other status stays as it is.
    3. Set the project's Status to In Progress the same way, but only if its status is To Do.
 
 Report the ticket's status as it is after step 3. Do not mention the updates. Return only this:
-- Ticket: id, name, page url, status, priority, estimate (h), due date, type, area, and the urls of its sessions
+- Ticket: id, name, page url, status, priority, estimate (h), due date, type, area
 - Background: two sentences at most
 - Acceptance criteria: verbatim list
 - Plan and resources: verbatim lists from the page
-- Project: name, page url, status, priority, start and end dates
+- Open questions: the bullets under the page's Open Questions heading (inside Refinement Notes), verbatim, or none
+- Project: Project ID, name, page url, status, priority, start and end dates
 - Project tasks: a table of id, name, status, estimate (h), due date, ordered by due date, with the ticket's own row marked
 
 ## READ <N>
