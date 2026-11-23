@@ -11,7 +11,7 @@ Do not load or call Notion tools in the main session. The `notion-task` agent do
 
 Notion data sources:
 - Tasks: `collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd`
-- Sessions: `collection://3e62b5c8-41e7-803b-8dac-000b86b4da8a`
+- Sessions: `collection://4212b5c8-41e7-8108-8fa6-000b880c3885`
 - Projects: `collection://3e62b5c8-41e7-807b-9a90-000be3ac55ee`
 
 ## Steps
