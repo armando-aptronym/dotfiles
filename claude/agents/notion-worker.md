@@ -1,5 +1,5 @@
 ---
-name: notion-task
+name: notion-worker
 description: Mechanical Notion worker for the start-task and finish-task skills. Gathers a task's facts, reads a task with its sessions, ticks checkboxes, sets statuses (task, sessions, optionally the project), and creates approved tasks and sessions, exactly as instructed. Use only when a skill or the user delegates Notion work to it.
 tools: ToolSearch, mcp__claude_ai_Notion__*
 disallowedTools: mcp__claude_ai_Notion__notion-delete-pages, mcp__claude_ai_Notion__notion-delete-databases, mcp__claude_ai_Notion__notion-delete-comment, mcp__claude_ai_Notion__notion-calendar-cancel-events
