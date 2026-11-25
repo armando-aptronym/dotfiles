@@ -69,7 +69,7 @@ The message lists the items to tick and any other edits. Do these in order.
 5. If the message includes `PROJECT DONE <project url>`, set that project's Status to Done after the task. Only the message can ask for this.
 6. Never edit hours. Leave sessions that are Proposed as they are.
 
-After step 4, if the task has a project, query the Tasks data source once: `SELECT COUNT(*) AS open FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Project] LIKE ? AND [Status] != 'Done'` with the project url as `%<url>%`. If the query fails, use the Tasks fallback; if that fails too, answer `unknown`.
+After step 4, if the task has a project, query the Tasks data source once: `SELECT COUNT(*) AS open FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Project] LIKE ? AND [Status] != 'Done'` with the parameter `%<id>%`, where `<id>` is the project page's 32-character hex id taken from its url (the last path segment, without dashes). Never pass the full url: the Project column stores links without the `/p/` segment, so a url pattern matches nothing and the count is a false 0. Treat a count of 0 as suspect: if the task's own project has other tasks you already read, or the count disagrees with them, re-run with the bare id before answering. If the query fails, use the Tasks fallback; if that fails too, answer `unknown`.
 
 Return one short block: the boxes ticked, the sessions set to Done by name, the task's final status, the Proposed sessions left as they are (by name), `Project complete: yes, no or unknown` (omit when the task has no project), and any warnings.
 
