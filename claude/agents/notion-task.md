@@ -69,7 +69,7 @@ The message lists the items to tick and any other edits. Do these in order.
 5. If the message includes `PROJECT DONE <project url>`, set that project's Status to Done after the task. Only the message can ask for this.
 6. Never edit hours. Leave sessions that are Proposed as they are.
 
-After step 4, if the task has a project, fetch the project page once and read its "Open Tasks" rollup (count of related tasks whose Status is not Done). `Project complete` is `yes` when it is 0 and `no` otherwise. Fetching the page after step 4 means the task just set to Done is already excluded. If the page has no "Open Tasks" property or the fetch fails, answer `unknown`.
+After step 4, if the task has a project, query the Tasks data source once: `SELECT COUNT(*) AS open FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Project] = (SELECT [Project] FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Ticket ID] = ?) AND [Status] != 'Done'` with params [N], the ticket number from the message. Comparing against the task's own Project value avoids building a url pattern by hand. `Project complete` is `yes` when the count is 0 and `no` otherwise. If the query fails, answer `unknown`.
 
 Return one short block: the boxes ticked, the sessions set to Done by name, the task's final status, the Proposed sessions left as they are (by name), `Project complete: yes, no or unknown` (omit when the task has no project), and any warnings.
 
