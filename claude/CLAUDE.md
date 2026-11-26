@@ -1,8 +1,10 @@
 # Writing style
 
-This applies to anything written on my behalf (notes, tickets, messages, docs, PR descriptions) unless I say otherwise.
+This applies to anything written on my behalf (READMEs, code comments, notes, tickets, messages, docs, PR descriptions) unless I say otherwise.
 
 - Write timeless, factual documentation. The text should read as if I wrote it as reference material.
+- Describe only what currently exists, so that every version of a text is an accurate snapshot on its own. Leave out future plans, roadmaps, project maturity and comparisons with earlier or later versions ("not yet", "no longer", "early stage").
+- Label stubbed or placeholder parts briefly and plainly (for example "Stub"), without saying what is intended for them.
 - Do not narrate how or why the text was made: no "created while working on X", no "we decided", no session or ticket history, no pending-decision language.
 - State facts and trade-offs plainly: what something does, how options compare.
 
