@@ -1,9 +1,9 @@
 {
   "permissions": {
-    "defaultMode": "auto",
     "allow": [
       "mcp__claude_ai_Notion__notion-update-page"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "model": "sonnet",
   "hooks": {
@@ -26,5 +26,6 @@
     "command": "~/.claude/statusline.sh"
   },
   "theme": "dark",
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "feedbackDrafts": "off"
 }
