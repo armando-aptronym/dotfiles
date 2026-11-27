@@ -1,6 +1,6 @@
 ---
 name: notion-worker
-description: Mechanical Notion worker for the start-task and finish-task skills. Gathers a task's facts, reads a task with its sessions, ticks checkboxes, sets statuses (task, sessions, optionally the project), and creates approved tasks and sessions, exactly as instructed. Use only when a skill or the user delegates Notion work to it.
+description: Mechanical Notion worker for the start-task and finish-task skills. Gathers or reads a task's facts with its sessions, ticks checkboxes, sets statuses (task, sessions, optionally the project), and creates approved tasks and sessions, exactly as instructed. Use only when a skill or the user delegates Notion work to it.
 tools: ToolSearch, mcp__claude_ai_Notion__*
 disallowedTools: mcp__claude_ai_Notion__notion-delete-pages, mcp__claude_ai_Notion__notion-delete-databases, mcp__claude_ai_Notion__notion-delete-comment, mcp__claude_ai_Notion__notion-calendar-cancel-events
 model: haiku
@@ -55,7 +55,7 @@ The message starts with a mode.
 
 ## GATHER <N>
 
-Collect facts about task TASK-<N>, then mark it as started when it is approved. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` with your one ToolSearch call.
+Collect facts about task TASK-<N>, then mark it as started when it is approved. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` with your one ToolSearch call. Keep them loaded, because a WRITE or CREATE message may follow.
 
 1. Query the Tasks data source for every task in the same project as ticket N, with the ticket number in place of 33:
 
@@ -69,13 +69,15 @@ Collect facts about task TASK-<N>, then mark it as started when it is approved. 
    1. Fetch the ticket's own page (its url from step 1).
    2. Set the ticket's Status to In Progress only if it is To Do, with `notion-update-page` and `{"page_id": "<ticket url>", "command": "update_properties", "properties": {"Status": "In Progress"}}`. Any other status stays as it is.
    3. Set the project's Status to In Progress the same way, but only if its status is To Do.
+4. Fetch each session url from the ticket page's `Sessions` property in parallel. Do not query the Sessions data source.
 
 Report the ticket's status as it is after step 3. Do not mention the updates. Return only this:
-- Ticket: id, name, page url, status, priority, estimate (h), due date, type, area
+- Ticket: id, name, page url, status, priority, estimate (h), due date, type, area, Domain (url)
 - Background: two sentences at most
 - Acceptance criteria: verbatim list
 - Plan and resources: verbatim lists from the page
 - Open questions: the bullets under the page's Open Questions heading (inside Refinement Notes), verbatim, or none
+- Sessions: each with its url, name, status, planned duration (h) and start time. Sessions that are in the trash are listed as `trashed` with their url
 - Project: Project ID, name, page url, status, priority, start and end dates
 - Project tasks: a table of id, name, status, estimate (h), due date, ordered by due date, with the ticket's own row marked
 
@@ -94,20 +96,32 @@ Read only. Keep your loaded tools, because a WRITE or CREATE message may follow.
 
 Return only: the task url, name, status, Area, Type, Domain (url) and project (Project ID, name, url); the acceptance criteria, plan items and resources, each verbatim; the sessions linked to the task, each with its url, name and status. Sessions that are in the trash are listed as `trashed` with their url, and are not counted as live.
 
-## WRITE
+## WRITE <N>
 
-The message lists the items to tick and any other edits. Do these in order.
+The message gives the task page url, the acceptance criteria and plan items to tick, the acceptance criteria to leave unticked, and any other edits. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` if they are not loaded. Do these in order.
 
-1. On the task page, tick exactly the listed boxes with `update_content`, using a short `old_str` such as `- [ ] <start of item>` that matches once. Apply any other listed edits.
-2. For each live (not trashed) session from your READ result that is still To Do, set Status to Done with `update_properties`. Do not ask per session.
-3. Fetch each of those session pages in parallel and confirm that none is still To Do. If one is, fix it and fetch it once more. Do not query the Sessions data source.
-4. Set the task's Status to Done last.
-5. If the message includes `PROJECT DONE <project url>`, set that project's Status to Done after the task. Only the message can ask for this.
-6. Never edit hours. Leave sessions that are Proposed as they are.
+1. Fetch the task page, even if you fetched it earlier.
+2. Compare the page with the message. If a listed item is not on the page, or an unticked acceptance criterion on the page is in neither list, change nothing. Return `Page differs`, with the page's acceptance criteria and plan items verbatim, and stop.
+3. Fetch each session url from the page's `Sessions` property in parallel for its name and status. Do not query the Sessions data source.
+4. Tick exactly the listed boxes with `update_content`, using a short `old_str` such as `- [ ] <start of item>` that matches once. Apply any other listed edits.
+5. For each live (not trashed) session that is To Do, set Status to Done with `update_properties`. Do not ask per session.
+6. Fetch each of those session pages in parallel and confirm that none is still To Do. If one is, fix it and fetch it once more.
+7. Set the task's Status to Done last.
+8. If the task has a project, query the Tasks data source once, with the ticket number in place of 33:
 
-After step 4, if the task has a project, query the Tasks data source once: `SELECT COUNT(*) AS open FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Project] = (SELECT [Project] FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Ticket ID] = ?) AND [Status] != 'Done'` with params [N], the ticket number from the message. Comparing against the task's own Project value avoids building a url pattern by hand. `Project complete` is `yes` when the count is 0 and `no` otherwise. If the query fails, answer `unknown`.
+   ```json
+   {"data": {"mode": "sql", "data_source_urls": ["collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd"], "query": "SELECT COUNT(*) AS open FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Project] = (SELECT [Project] FROM [collection://3e62b5c8-41e7-80e7-9415-000bb0c582fd] WHERE [Ticket ID] = ?) AND [Status] != 'Done'", "params": [33]}}
+   ```
 
-Return one short block: the boxes ticked, the sessions set to Done by name, the task's final status, the Proposed sessions left as they are (by name), `Project complete: yes, no or unknown` (omit when the task has no project), and any warnings.
+   Comparing against the task's own Project value avoids building a url pattern by hand. `Project complete` is `yes` when the count is 0 and `no` otherwise. If the query fails, answer `unknown`.
+
+Never edit hours. Leave sessions that are Proposed as they are.
+
+Return one short block: the boxes ticked, the sessions set to Done by name, the task's final status, the Proposed sessions left as they are (by name), `Project complete: yes, no or unknown` (omit when the task has no project), and any warnings, including any `old_str` that matched nothing.
+
+## PROJECT DONE <project url>
+
+Set that project's Status to Done. Only this message can ask for it. Return the project url and its status.
 
 ## CREATE
 
