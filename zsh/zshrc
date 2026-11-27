@@ -58,3 +58,5 @@ eval "$(starship init zsh)"
 
 # Machine-specific settings, kept outside the repo
 if [ -f "$HOME/.zshrc.local" ]; then . "$HOME/.zshrc.local"; fi
+
+export PATH="$HOME/.local/bin:$PATH"
