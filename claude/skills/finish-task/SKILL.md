@@ -13,7 +13,7 @@ Do not load or call Notion tools in the main session. The `notion-worker` agent 
 
 1. **Audit the acceptance criteria.**
    1. Read the task with the `notion-worker` agent (Agent tool, `subagent_type: "notion-worker"`), with the message `READ <N>`, where `<N>` is the number after the dash in the ticket ID. Keep its agent id, because steps 4 and 5 continue the same agent with SendMessage, which avoids loading the tool schemas again. If SendMessage is unavailable, spawn a new agent and send `READ <N>` again before the write message.
-   2. Gather evidence from whatever the criteria point at. For a repo, use the evidence sub-agent (the prompt below, `subagent_type: "general-purpose"`, `model: "haiku"`). For produced files or outputs (a render, a document, a deployed page), read them directly. Otherwise the evidence is the conversation, so audit it directly.
+   2. Gather evidence from whatever the criteria point at. For a repo where this session has run the checks the criteria call for on the current code, use those results and confirm the repo state yourself with read-only commands (git status and log, `gh run list`). For any other repo case, such as finishing in a fresh session, use the evidence sub-agent (the prompt below, `subagent_type: "general-purpose"`, `model: "haiku"`). For produced files or outputs (a render, a document, a deployed page), read them directly. Otherwise the evidence is the conversation, so audit it directly.
    3. Judge each criterion as met or not met, with the evidence. Do not tick anything that has not been verified.
 2. **Quiz where a criterion says "can explain".** Ask three or four short questions in the user's own words, grade the answers honestly, and correct gaps. Count the criterion as met only if the understanding is there.
 3. **Update the documentation, when the task produced something worth keeping** (knowledge, a decision, a reusable asset). When it is unclear, ask once whether anything is worth writing down, and skip the step on a no. Notes live in the Obsidian vault, and the conventions in `CLAUDE.md` apply (folder note, tags, timeless factual style). Check the existing pages against what was actually done, and add or fix pages where they are out of date. Write each page once, with a single Write, instead of Write followed by Edit.
@@ -24,7 +24,7 @@ Choosing the next task is out of scope. The user does that separately.
 
 ## Evidence sub-agent prompt
 
-Used when the task has a repo. It stays a general-purpose agent for now, and can later be replaced by a custom code-reviewer agent by changing `subagent_type`.
+Used for a repo whose checks this session has not run (step 1). It is a general-purpose agent, selected by `subagent_type`.
 
 Fill in the repo path and the criteria verbatim.
 
