@@ -11,6 +11,18 @@ link() {  # link <source> <target>
   echo "linked $2"
 }
 
+# Homebrew packages: prompt, zsh plugins and terminal font
+if command -v brew >/dev/null; then
+  brew bundle install --no-upgrade --file="$REPO/Brewfile"
+else
+  echo "Homebrew 'brew' command not found: install it from https://brew.sh, then re-run."
+fi
+
+# Shell
+link "$REPO/zsh/zshrc"              "$HOME/.zshrc"
+link "$REPO/zsh/zprofile"           "$HOME/.zprofile"
+link "$REPO/starship/starship.toml" "$HOME/.config/starship.toml"
+
 # VS Code
 VSCODE="$HOME/Library/Application Support/Code/User"
 link "$REPO/vscode/settings.json"    "$VSCODE/settings.json"
