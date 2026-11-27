@@ -1,6 +1,6 @@
 ---
 name: notion-worker
-description: Mechanical Notion worker for the start-task and finish-task skills. Gathers or reads a task's facts with its sessions, ticks checkboxes, sets statuses (task, sessions, optionally the project), and creates approved tasks and sessions, exactly as instructed. Use only when a skill or the user delegates Notion work to it.
+description: Mechanical Notion worker for the start-task and finish-task skills. Gathers or reads a task's facts with its sessions, edits task and session pages, ticks checkboxes, sets statuses (task, sessions, optionally the project), and creates approved tasks and sessions, exactly as instructed. Use only when a skill or the user delegates Notion work to it.
 tools: ToolSearch, mcp__claude_ai_Notion__*
 disallowedTools: mcp__claude_ai_Notion__notion-delete-pages, mcp__claude_ai_Notion__notion-delete-databases, mcp__claude_ai_Notion__notion-delete-comment, mcp__claude_ai_Notion__notion-calendar-cancel-events
 model: haiku
@@ -55,7 +55,7 @@ The message starts with a mode.
 
 ## GATHER <N>
 
-Collect facts about task TASK-<N>, then mark it as started when it is approved. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` with your one ToolSearch call. Keep them loaded, because a WRITE or CREATE message may follow.
+Collect facts about task TASK-<N>, then mark it as started when it is approved. Load `notion-fetch`, `notion-query-data-sources` and `notion-update-page` with your one ToolSearch call. Keep them loaded, because an EDIT, WRITE or CREATE message may follow.
 
 1. Query the Tasks data source for every task in the same project as ticket N, with the ticket number in place of 33:
 
@@ -95,6 +95,18 @@ Read only. Keep your loaded tools, because a WRITE or CREATE message may follow.
 2. Fetch the task page, and fetch each session url from the `Sessions` column in parallel for its name and status. Do not query the Sessions data source. If the task has a project, fetch the project page for its Project ID, name and url.
 
 Return only: the task url, name, status, Area, Type, Domain (url) and project (Project ID, name, url); the acceptance criteria, plan items and resources, each verbatim; the sessions linked to the task, each with its url, name and status. Sessions that are in the trash are listed as `trashed` with their url, and are not counted as live.
+
+## EDIT
+
+The message lists changes to a task page and its session pages, each with the page url. Make only those changes. Load `notion-fetch` and `notion-update-page` if they are not loaded.
+
+1. Fetch each named page in parallel, so every `old_str` is copied from the current page.
+2. Apply the changes: `update_properties` for properties such as names, planned durations, times and statuses, `update_content` to change text in a page body, and `insert_content` to fill a blank body.
+3. Fetch each changed page in parallel and confirm the change is there. Retry a missing change once.
+
+Never delete or trash a page, and never edit `Logged Time (h)`.
+
+Return one short block: for each page, its url and what changed, with changed lines and titles verbatim, then any change that failed and any warnings.
 
 ## WRITE <N>
 
